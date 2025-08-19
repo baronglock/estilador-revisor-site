@@ -383,7 +383,7 @@ Exemplo de saída:
       const style = styles.find(s => s.id === para.style);
       const formatting = style?.formatting || {};
       
-      let alignment: AlignmentType = AlignmentType.LEFT;
+      let alignment = AlignmentType.LEFT;
       if (formatting.alignment === 'center') alignment = AlignmentType.CENTER;
       if (formatting.alignment === 'right') alignment = AlignmentType.RIGHT;
       if (formatting.alignment === 'justify') alignment = AlignmentType.JUSTIFIED;

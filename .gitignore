@@ -7,6 +7,12 @@ __pycache__/
 env/
 venv/
 ENV/
+
+# Next.js
+/.next/
+/out/
+
+# Dependencies
 /node_modules
 
 
