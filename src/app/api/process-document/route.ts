@@ -1,9 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import OpenAI from 'openai'
+import { validateEnv, env } from '@/lib/env'
 
-// Initialize OpenAI with server-side API key
+// Validate environment variables on startup
+try {
+  validateEnv()
+} catch (error) {
+  console.error('Environment validation failed:', error)
+}
+
+// Initialize OpenAI with validated API key
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY, // Server-side only (no NEXT_PUBLIC_ prefix)
+  apiKey: env.openaiApiKey,
 })
 
 // Token pricing configuration (in BRL)
@@ -42,10 +50,55 @@ function calculateCost(tokens: number, isFreePlan: boolean = false): number {
 
 export async function POST(request: NextRequest) {
   try {
-    const { paragraphs, systemPrompt, userId = 'anonymous' } = await request.json()
+    // Validate request body size (max 1MB)
+    const contentLength = request.headers.get('content-length')
+    if (contentLength && parseInt(contentLength) > 1048576) {
+      return NextResponse.json(
+        { error: 'Documento muito grande. Tamanho máximo: 1MB' },
+        { status: 413 }
+      )
+    }
+
+    const body = await request.json()
+    
+    // Input validation
+    if (!body || typeof body !== 'object') {
+      return NextResponse.json(
+        { error: 'Requisição inválida' },
+        { status: 400 }
+      )
+    }
+    
+    const { paragraphs, systemPrompt, userId = 'anonymous' } = body
+    
+    // Validate required fields
+    if (!Array.isArray(paragraphs) || paragraphs.length === 0) {
+      return NextResponse.json(
+        { error: 'Documento vazio ou formato inválido' },
+        { status: 400 }
+      )
+    }
+    
+    if (!systemPrompt || typeof systemPrompt !== 'string') {
+      return NextResponse.json(
+        { error: 'Prompt do sistema é obrigatório' },
+        { status: 400 }
+      )
+    }
+    
+    // Limit maximum paragraphs to prevent abuse
+    if (paragraphs.length > 500) {
+      return NextResponse.json(
+        { error: 'Documento excede o limite de 500 parágrafos' },
+        { status: 400 }
+      )
+    }
+    
+    // Sanitize user ID
+    const sanitizedUserId = userId.replace(/[^a-zA-Z0-9-_]/g, '').substring(0, 50)
 
     // Check user account and credits
-    const userAccount = getUserAccount(userId)
+    const userAccount = getUserAccount(sanitizedUserId)
     
     if (!userAccount.isActive) {
       return NextResponse.json(
@@ -146,9 +199,18 @@ export async function POST(request: NextRequest) {
     //   documentId: generateDocumentId()
     // })
 
-    // Log usage for monitoring
+    // Log usage for monitoring (sanitized)
     const modelUsed = isFreePlan ? 'GPT-4o-mini' : 'GPT-4.1'
-    console.log(`Document processed: ${totalTokensUsed} tokens, Cost: R$ ${actualCost.toFixed(2)}, Model: ${modelUsed}, User: ${userId}`)
+    const logEntry = {
+      timestamp: new Date().toISOString(),
+      userId: sanitizedUserId,
+      tokensUsed: totalTokensUsed,
+      cost: actualCost.toFixed(2),
+      model: modelUsed,
+      paragraphs: paragraphs.length,
+      ip: request.headers.get('x-forwarded-for') || 'unknown'
+    }
+    console.log('Document processed:', JSON.stringify(logEntry))
 
     return NextResponse.json({ 
       processedParagraphs,
@@ -167,7 +229,13 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error: any) {
-    console.error('API Error:', error)
+    // Log error safely (don't expose sensitive info)
+    console.error('API Error:', {
+      message: error?.message || 'Unknown error',
+      status: error?.status,
+      code: error?.code,
+      timestamp: new Date().toISOString()
+    })
     
     // Handle specific OpenAI errors
     if (error?.status === 429) {
