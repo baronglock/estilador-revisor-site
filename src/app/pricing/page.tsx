@@ -15,98 +15,124 @@ export default function PricingPage() {
 
   const plans = [
     {
-      name: 'Grátis',
-      description: 'Perfeito para experimentar',
+      name: 'Teste Grátis',
+      description: 'Experimente sem compromisso',
       price: { monthly: 0, yearly: 0 },
-      credits: { monthly: 1, yearly: 12 },
+      credits: { monthly: 'R$ 0,50', yearly: 'R$ 0,50' },
       color: 'border-gray-200',
       badge: null,
       features: [
-        { text: '1 documento por mês', included: true },
-        { text: 'Estilização básica', included: true },
-        { text: 'Até 10 páginas por documento', included: true },
+        { text: 'R$ 0,50 em créditos (único)', included: true },
+        { text: '1 documento pequeno (até 20 páginas)', included: true },
+        { text: 'Modelo GPT-4o-mini (básico)', included: true },
         { text: 'Suporte por email', included: true },
-        { text: 'Revisão de texto', included: false },
-        { text: 'API access', included: false },
-        { text: 'Processamento prioritário', included: false },
-        { text: 'Documentos ilimitados', included: false }
+        { text: 'Validade: 7 dias', included: true },
+        { text: 'Processamento padrão', included: true },
+        { text: 'Modelo GPT-4.1 premium', included: false },
+        { text: 'API access', included: false }
       ],
-      cta: 'Começar Grátis'
+      cta: 'Testar Grátis'
+    },
+    {
+      name: 'Pré-pago',
+      description: 'Pague apenas pelo que usar',
+      price: { monthly: 29, yearly: 29 },
+      credits: { monthly: 'R$ 29', yearly: 'R$ 29' },
+      color: 'border-green-500',
+      badge: 'Flexível',
+      features: [
+        { text: 'R$ 29 em créditos', included: true },
+        { text: '~5-6 documentos grandes', included: true },
+        { text: 'Modelo GPT-4.1 (máxima precisão)', included: true },
+        { text: 'Custo médio: R$ 5,00 por doc (120 pág)', included: true },
+        { text: 'Validade: 90 dias', included: true },
+        { text: 'Suporte prioritário', included: true },
+        { text: 'Histórico de documentos', included: true },
+        { text: 'Sem renovação automática', included: true }
+      ],
+      cta: 'Comprar Créditos'
     },
     {
       name: 'Profissional',
-      description: 'Para profissionais individuais',
-      price: { monthly: 29, yearly: 290 },
-      credits: { monthly: 50, yearly: 600 },
+      description: 'Melhor custo-benefício',
+      price: { monthly: 99, yearly: 990 },
+      credits: { monthly: 'R$ 115', yearly: 'R$ 1.500' },
       color: 'border-blue-500',
       badge: 'Mais Popular',
       features: [
-        { text: '50 documentos por mês', included: true },
-        { text: 'Estilização avançada', included: true },
-        { text: 'Até 100 páginas por documento', included: true },
-        { text: 'Suporte prioritário', included: true },
-        { text: 'Revisão de texto básica', included: true },
-        { text: 'Templates personalizados', included: true },
-        { text: 'Processamento prioritário', included: false },
-        { text: 'API access', included: false }
-      ],
-      cta: 'Teste 7 Dias Grátis'
-    },
-    {
-      name: 'Equipe',
-      description: 'Para equipes pequenas',
-      price: { monthly: 99, yearly: 990 },
-      credits: { monthly: 200, yearly: 2400 },
-      color: 'border-purple-500',
-      badge: 'Melhor Valor',
-      features: [
-        { text: '200 documentos por mês', included: true },
-        { text: 'Todos os recursos Pro', included: true },
-        { text: 'Documentos ilimitados de páginas', included: true },
-        { text: 'Suporte 24/7', included: true },
-        { text: 'Revisão de texto avançada', included: true },
-        { text: '5 usuários inclusos', included: true },
+        { text: 'R$ 115 em créditos/mês (15% bônus)', included: true },
+        { text: '~20-25 documentos grandes/mês', included: true },
+        { text: 'Modelo GPT-4.1 (máxima precisão)', included: true },
         { text: 'Processamento prioritário', included: true },
-        { text: 'API access básico', included: true }
+        { text: 'Suporte 24/7', included: true },
+        { text: 'Créditos acumulam por 3 meses', included: true },
+        { text: 'Relatórios de uso detalhados', included: true },
+        { text: 'Desconto anual: 25% extra', included: true }
       ],
-      cta: 'Começar Agora'
+      cta: 'Assinar Agora'
     },
     {
-      name: 'Empresa',
-      description: 'Soluções personalizadas',
-      price: { monthly: 'Custom', yearly: 'Custom' },
-      credits: { monthly: 'Ilimitado', yearly: 'Ilimitado' },
-      color: 'border-gradient-to-r from-purple-500 to-blue-500',
+      name: 'Empresarial',
+      description: 'Para grandes volumes',
+      price: { monthly: 299, yearly: 2990 },
+      credits: { monthly: 'R$ 380', yearly: 'R$ 5.000' },
+      color: 'border-purple-500',
       badge: 'Enterprise',
       features: [
-        { text: 'Documentos ilimitados', included: true },
-        { text: 'Todos os recursos', included: true },
-        { text: 'Usuários ilimitados', included: true },
+        { text: 'R$ 380 em créditos/mês (27% bônus)', included: true },
+        { text: '~70-80 documentos grandes/mês', included: true },
+        { text: 'Modelo GPT-4.1 (máxima precisão)', included: true },
+        { text: 'API completo incluído', included: true },
         { text: 'Suporte dedicado', included: true },
-        { text: 'SLA garantido', included: true },
-        { text: 'Treinamento personalizado', included: true },
-        { text: 'API completo', included: true },
-        { text: 'Integração customizada', included: true }
+        { text: 'Créditos nunca expiram', included: true },
+        { text: 'Faturamento personalizado', included: true },
+        { text: 'SLA garantido 99.9%', included: true }
       ],
       cta: 'Falar com Vendas'
     }
   ]
 
   const costCalculator = {
-    averageDocSize: 30, // páginas
-    processingCost: 0.15, // por documento
     examples: [
-      { docs: 10, cost: 1.5, savings: 27.5 },
-      { docs: 50, cost: 7.5, savings: 21.5 },
-      { docs: 200, cost: 30, savings: 69 },
-      { docs: 500, cost: 75, savings: 'Custom' }
+      { 
+        type: 'Documento Pequeno',
+        pages: '10-20 páginas',
+        tokens: '~10.000 tokens',
+        cost: 'R$ 2,50 - R$ 5,00',
+        description: 'Cartas, contratos simples',
+        modelFree: 'R$ 0,10 - R$ 0,20'
+      },
+      { 
+        type: 'Documento Médio',
+        pages: '30-60 páginas',
+        tokens: '~30.000 tokens',
+        cost: 'R$ 7,50 - R$ 15,00',
+        description: 'Relatórios, artigos',
+        modelFree: 'R$ 0,30 - R$ 0,60'
+      },
+      { 
+        type: 'Documento Grande',
+        pages: '80-120 páginas',
+        tokens: '~80.000 tokens',
+        cost: 'R$ 20,00 - R$ 40,00',
+        description: 'Teses, manuais',
+        modelFree: 'R$ 0,80 - R$ 1,20'
+      },
+      { 
+        type: 'Livro/E-book',
+        pages: '200+ páginas',
+        tokens: '~200.000+ tokens',
+        cost: 'R$ 50,00 - R$ 100,00',
+        description: 'Livros completos',
+        modelFree: 'R$ 2,00 - R$ 4,00'
+      }
     ]
   }
 
   const faqs = [
     {
       question: 'Como funcionam os créditos?',
-      answer: 'Cada documento processado consome 1 crédito, independente do tamanho (dentro dos limites do plano). Créditos não utilizados não acumulam para o próximo mês.'
+      answer: 'Os créditos são consumidos baseados na quantidade de tokens processados. Com GPT-4.1 (planos pagos), o custo é R$ 0,50 por 1.000 tokens. Um documento de 120 páginas usa ~80.000 tokens, custando cerca de R$ 40,00. Você pode acompanhar o consumo em tempo real.'
     },
     {
       question: 'Posso mudar de plano a qualquer momento?',
@@ -117,12 +143,12 @@ export default function PricingPage() {
       answer: 'Sim! Oferecemos 2 meses grátis quando você escolhe o pagamento anual, economizando aproximadamente 17% comparado ao mensal.'
     },
     {
-      question: 'Como funciona o teste grátis?',
-      answer: 'O teste grátis de 7 dias está disponível para o plano Profissional. Não solicitamos cartão de crédito e você pode cancelar a qualquer momento.'
+      question: 'Qual a diferença entre os modelos GPT-4.1 e GPT-4o-mini?',
+      answer: 'GPT-4.1 (planos pagos) oferece máxima precisão, melhor compreensão de contexto e resultados superiores. GPT-4o-mini (plano grátis) é mais rápido e econômico, ideal para testes, mas com qualidade reduzida.'
     },
     {
-      question: 'Posso comprar créditos adicionais?',
-      answer: 'Sim! Você pode comprar pacotes de créditos adicionais a R$0,50 por crédito, ou optar por fazer upgrade do plano.'
+      question: 'Os créditos expiram?',
+      answer: 'Depende do plano: Teste grátis (30 dias), Pré-pago (90 dias), Profissional (acumulam por 3 meses), Empresarial (nunca expiram). Planos com assinatura recebem novos créditos mensalmente.'
     },
     {
       question: 'Qual a política de reembolso?',
@@ -149,12 +175,26 @@ export default function PricingPage() {
             </div>
             
             <h1 className="text-5xl sm:text-6xl font-bold text-gray-900 mb-6">
-              Planos e Preços
+              Preços Transparentes e Flexíveis
             </h1>
             
-            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-              Escolha o plano ideal para suas necessidades. Comece grátis e escale conforme cresce.
+            <p className="text-xl text-gray-600 mb-4 max-w-3xl mx-auto">
+              Sistema de créditos baseado em uso real. Pague apenas pelos tokens processados.
             </p>
+            
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-2xl mx-auto mb-8">
+              <p className="text-sm text-blue-800">
+                <strong>💡 Como funciona:</strong> Cada documento consome créditos baseado na quantidade de texto processado (tokens). 
+                Um documento típico de 120 páginas custa aproximadamente R$ 5,00 usando o modelo GPT-4.1 (premium).
+              </p>
+            </div>
+            
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4 max-w-2xl mx-auto mb-8">
+              <p className="text-sm text-green-800">
+                <strong>✨ Qualidade Premium:</strong> Planos pagos usam o modelo GPT-4.1 para máxima precisão e qualidade. 
+                O plano gratuito usa GPT-4o-mini, ideal para testes rápidos.
+              </p>
+            </div>
 
             {/* Billing Toggle */}
             <div className="inline-flex items-center bg-gray-100 rounded-lg p-1 mb-12">
@@ -232,10 +272,15 @@ export default function PricingPage() {
                   </div>
                   
                   <div className="bg-gray-50 rounded-lg p-3 mb-6">
-                    <div className="text-sm text-gray-600">Créditos inclusos:</div>
+                    <div className="text-sm text-gray-600">Créditos:</div>
                     <div className="font-semibold text-gray-900">
-                      {plan.credits[billingPeriod]} {typeof plan.credits[billingPeriod] === 'number' ? 'documentos' : ''}
+                      {plan.credits[billingPeriod]}
                     </div>
+                    {plan.name === 'Profissional' || plan.name === 'Empresarial' ? (
+                      <div className="text-xs text-gray-500 mt-1">
+                        {billingPeriod === 'yearly' ? 'por ano' : 'por mês'}
+                      </div>
+                    ) : null}
                   </div>
                   
                   <ul className="space-y-3 mb-6">
@@ -277,15 +322,15 @@ export default function PricingPage() {
             className="text-center mb-12"
           >
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              Calculadora de Economia
+              Estimativa de Custos
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Veja quanto você pode economizar baseado no seu volume de documentos
+              Custos médios baseados no tamanho e complexidade dos documentos
             </p>
           </motion.div>
 
           <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {costCalculator.examples.map((example, index) => (
                 <motion.div
                   key={index}
@@ -293,36 +338,41 @@ export default function PricingPage() {
                   whileInView={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   viewport={{ once: true }}
-                  className="bg-white rounded-xl p-6 text-center"
+                  className="bg-white rounded-xl p-6"
                 >
-                  <div className="text-3xl font-bold text-gray-900 mb-2">
-                    {example.docs}
+                  <div className="text-lg font-bold text-gray-900 mb-2">
+                    {example.type}
                   </div>
-                  <div className="text-sm text-gray-600 mb-4">documentos/mês</div>
+                  <div className="text-sm text-gray-600 mb-1">{example.pages}</div>
+                  <div className="text-xs text-gray-500 mb-3">{example.tokens}</div>
                   
-                  <div className="space-y-2">
-                    <div className="text-sm text-gray-500">
-                      Custo estimado:
+                  <div className="border-t pt-3">
+                    <div className="mb-2">
+                      <div className="text-xs text-gray-500">GPT-4.1 (Premium):</div>
+                      <div className="text-xl font-semibold text-blue-600">
+                        {example.cost}
+                      </div>
                     </div>
-                    <div className="text-xl font-semibold text-blue-600">
-                      R${example.cost}
+                    <div className="mb-1">
+                      <div className="text-xs text-gray-500">GPT-4o-mini (Grátis):</div>
+                      <div className="text-sm text-green-600">
+                        {example.modelFree}
+                      </div>
                     </div>
-                    <div className="text-sm text-green-600">
-                      {typeof example.savings === 'number' 
-                        ? `Economia de R$${example.savings}`
-                        : 'Plano personalizado'
-                      }
+                    <div className="text-xs text-gray-500 mt-2">
+                      {example.description}
                     </div>
                   </div>
                 </motion.div>
               ))}
             </div>
             
-            <div className="mt-8 text-center">
-              <p className="text-sm text-gray-600">
+            <div className="mt-8 p-4 bg-yellow-50 rounded-lg">
+              <p className="text-sm text-yellow-800">
                 <Info className="w-4 h-4 inline mr-1" />
-                Baseado em documentos de ~{costCalculator.averageDocSize} páginas. 
-                Custo médio de processamento: R${costCalculator.processingCost}/documento
+                <strong>Nota:</strong> Os valores são estimativas baseadas no modelo GPT-4.1. O custo real depende da complexidade do texto, 
+                quantidade de estilos aplicados e tamanho do documento. Documentos técnicos ou com formatação complexa podem ter custo maior. 
+                O modelo gratuito (GPT-4o-mini) tem custo muito menor mas qualidade reduzida.
               </p>
             </div>
           </div>
