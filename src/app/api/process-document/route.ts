@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import OpenAI from 'openai'
 import { validateEnv, env } from '@/lib/env'
+import { createClient } from '@/lib/supabase/server'
 
 // Validate environment variables on startup
 try {
@@ -23,16 +24,26 @@ const TOKEN_PRICING = {
   estimatedTokensPerWord: 1.3, // Average tokens per word in Portuguese
 }
 
-// Mock user account data - in production, this would come from your database
-const getUserAccount = (userId: string) => {
-  // This would normally check your database for user's credits and plan
+// Get user account from Supabase
+async function getUserAccount(userId: string) {
+  const supabase = await createClient()
+  
+  const { data: profile, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', userId)
+    .single()
+  
+  if (error || !profile) {
+    return null
+  }
+  
   return {
-    userId,
-    plan: 'prepaid', // 'free', 'prepaid', 'professional', 'enterprise'
-    creditsBalance: 29.00, // R$ 29,00 in credits
+    userId: profile.id,
+    plan: profile.plan || 'free',
+    creditsBalance: parseFloat(profile.credits_balance || '0'),
     isActive: true,
-    tokensUsedThisMonth: 0,
-    monthlyBonus: 0, // 15% for professional, 25% for enterprise
+    tokensUsedTotal: profile.tokens_used_total || 0,
   }
 }
 
@@ -94,11 +105,33 @@ export async function POST(request: NextRequest) {
       )
     }
     
-    // Sanitize user ID
-    const sanitizedUserId = userId.replace(/[^a-zA-Z0-9-_]/g, '').substring(0, 50)
-
-    // Check user account and credits
-    const userAccount = getUserAccount(sanitizedUserId)
+    // Get authenticated user - REQUIRED
+    const supabase = await createClient()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    
+    // Reject if not authenticated
+    if (authError || !user) {
+      return NextResponse.json(
+        { 
+          error: 'Não autorizado',
+          message: 'Você precisa fazer login para usar este serviço. Crie uma conta gratuita para começar.'
+        },
+        { status: 401 }
+      )
+    }
+    
+    // Get user account from database
+    const userAccount = await getUserAccount(user.id)
+    
+    if (!userAccount) {
+      return NextResponse.json(
+        { 
+          error: 'Conta não encontrada',
+          message: 'Erro ao carregar dados da conta. Por favor, tente fazer login novamente.'
+        },
+        { status: 404 }
+      )
+    }
     
     if (!userAccount.isActive) {
       return NextResponse.json(
@@ -110,7 +143,8 @@ export async function POST(request: NextRequest) {
     // Estimate token usage and cost for the entire document
     const fullText = paragraphs.join(' ')
     const estimatedTokens = estimateTokenCount(fullText + systemPrompt)
-    const isFreePlan = userAccount.plan === 'free'
+    // Free plan users get lower quality model at lower cost
+    const isFreePlan = userAccount.plan === 'free' && userAccount.creditsBalance <= 0.50
     const estimatedCost = calculateCost(estimatedTokens, isFreePlan)
     
     // Check if user has enough credits
@@ -191,19 +225,33 @@ export async function POST(request: NextRequest) {
     const actualCost = calculateCost(totalTokensUsed, isFreePlan)
     const newBalance = userAccount.creditsBalance - actualCost
     
-    // TODO: In production, update user's credits in database
-    // await updateUserCredits(userId, {
-    //   newBalance,
-    //   tokensUsed: totalTokensUsed,
-    //   cost: actualCost,
-    //   documentId: generateDocumentId()
-    // })
+    // Update user's credits in database (always required since user must be authenticated)
+    const { data: updateResult, error: updateError } = await supabase.rpc(
+      'update_user_credits',
+      {
+        p_user_id: user.id,
+        p_tokens_used: totalTokensUsed,
+        p_cost: actualCost,
+        p_document_name: `Document_${new Date().toISOString()}`,
+        p_model: isFreePlan ? 'GPT-4o-mini' : 'GPT-4.1',
+        p_paragraphs: paragraphs.length
+      }
+    )
+    
+    if (updateError) {
+      console.error('Failed to update user credits:', updateError)
+      // Still return the result even if credit update fails
+      // But log it for monitoring
+    } else {
+      console.log('Credits updated:', updateResult)
+    }
 
-    // Log usage for monitoring (sanitized)
+    // Log usage for monitoring
     const modelUsed = isFreePlan ? 'GPT-4o-mini' : 'GPT-4.1'
     const logEntry = {
       timestamp: new Date().toISOString(),
-      userId: sanitizedUserId,
+      userId: user.id,
+      email: user.email,
       tokensUsed: totalTokensUsed,
       cost: actualCost.toFixed(2),
       model: modelUsed,

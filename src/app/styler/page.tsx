@@ -2,6 +2,8 @@
 
 import { useState, useCallback, useEffect } from 'react'
 import { useDropzone } from 'react-dropzone'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 import { 
   FileText, Upload, Loader2, Download, Plus, Trash2, Settings, 
   Play, Clock, AlertCircle, CheckCircle, Edit2, Save, X, 
@@ -111,7 +113,52 @@ export default function StylerPage() {
   const [progressMessage, setProgressMessage] = useState('')
   const [results, setResults] = useState<any>(null)
   const [error, setError] = useState<string | null>(null)
+  const [user, setUser] = useState<any>(null)
+  const [authLoading, setAuthLoading] = useState(true)
   const { toast } = useToast()
+  const router = useRouter()
+  const supabase = createClient()
+  
+  // Check authentication on mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { data: { user }, error } = await supabase.auth.getUser()
+        
+        if (error || !user) {
+          toast({
+            title: 'Autenticação necessária',
+            description: 'Crie uma conta gratuita para usar o estilizador',
+            variant: 'destructive'
+          })
+          router.push('/auth/login')
+          return
+        }
+        
+        setUser(user)
+      } catch (error) {
+        console.error('Auth error:', error)
+        router.push('/auth/login')
+      } finally {
+        setAuthLoading(false)
+      }
+    }
+    
+    checkAuth()
+    
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT' || !session) {
+        router.push('/auth/login')
+      } else if (event === 'SIGNED_IN' && session) {
+        setUser(session.user)
+      }
+    })
+    
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [router, supabase, toast])
 
   // Template management
   const [savedTemplates, setSavedTemplates] = useState<any>({})
@@ -439,6 +486,23 @@ export default function StylerPage() {
     }
   }
 
+  // Show loading state while checking authentication
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
+          <p className="text-gray-600">Verificando autenticação...</p>
+        </div>
+      </div>
+    )
+  }
+  
+  // Don't render the page if not authenticated
+  if (!user) {
+    return null
+  }
+  
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
