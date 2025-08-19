@@ -158,9 +158,6 @@ export default function StylerPage() {
 
   // Load saved data
   useEffect(() => {
-    const savedApiKey = localStorage.getItem('wordStyler_apiKey')
-    if (savedApiKey) setApiKey(savedApiKey)
-    
     const savedBookName = localStorage.getItem('wordStyler_bookName')
     if (savedBookName) setBookName(savedBookName)
     
@@ -178,9 +175,8 @@ export default function StylerPage() {
 
   // Save changes automatically
   useEffect(() => {
-    if (apiKey) localStorage.setItem('wordStyler_apiKey', apiKey)
     if (bookName) localStorage.setItem('wordStyler_bookName', bookName)
-  }, [apiKey, bookName])
+  }, [bookName])
 
   const loadTemplate = (templateId: string) => {
     let template
