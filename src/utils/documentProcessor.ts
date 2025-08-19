@@ -1,6 +1,5 @@
 import mammoth from 'mammoth';
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Table, TableRow, TableCell, WidthType, ImageRun } from 'docx';
-import OpenAI from 'openai';
 import JSZip from 'jszip';
 
 export interface StyleFormatting {
@@ -73,13 +72,8 @@ interface ProcessedParagraph {
 }
 
 export class DocumentProcessor {
-  private openai: OpenAI;
-
-  constructor(apiKey: string) {
-    this.openai = new OpenAI({
-      apiKey: apiKey,
-      dangerouslyAllowBrowser: true
-    });
+  constructor() {
+    // API key is now handled server-side
   }
 
   async processDocument(
@@ -205,29 +199,35 @@ export class DocumentProcessor {
       const prompt = this.buildOptimizedPrompt(contextBatch, styles, removalPrompts, i, paragraphs.length, i > 0 ? 3 : 0);
       
       try {
-        const response = await this.openai.chat.completions.create({
-          model: 'gpt-4o-mini',
-          messages: [
-            {
-              role: 'system',
-              content: `Você é um assistente especializado em formatar documentos educacionais.
+        // Call our backend API instead of OpenAI directly
+        const systemPrompt = `Você é um assistente especializado em formatar documentos educacionais.
 Analise o texto e marque CADA parágrafo com tags XML apropriadas.
 IMPORTANTE: 
 - Marque TODOS os parágrafos, mesmo que não correspondam a nenhum estilo específico (use <normal> para texto comum)
 - Mantenha a ordem exata dos parágrafos
-- Para remoções, use as tags de início e fim especificadas`
-            },
-            {
-              role: 'user',
-              content: prompt
-            }
-          ],
-          temperature: 0.2,
-          max_tokens: 8000
+- Para remoções, use as tags de início e fim especificadas`;
+
+        const apiResponse = await fetch('/api/process-document', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            paragraphs: contextBatch,
+            systemPrompt: systemPrompt + '\n\n' + prompt,
+            userId: 'current-user' // This would come from auth context in production
+          })
         });
+
+        if (!apiResponse.ok) {
+          const error = await apiResponse.json();
+          throw new Error(error.error || 'Failed to process document');
+        }
+
+        const { processedParagraphs, creditsRemaining, plan } = await apiResponse.json();
         
         apiCalls++;
-        const markedContent = response.choices[0].message.content || '';
+        const markedContent = processedParagraphs.join('\n\n');
         
         // Parse marked content
         const parsed = this.parseMarkedContent(markedContent, styles);

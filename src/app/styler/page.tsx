@@ -105,7 +105,6 @@ import Navigation from '@/components/layout/Navigation'
 
 export default function StylerPage() {
   const [file, setFile] = useState<File | null>(null)
-  const [apiKey, setApiKey] = useState('')
   const [bookName, setBookName] = useState('')
   const [processing, setProcessing] = useState(false)
   const [progress, setProgress] = useState(0)
@@ -385,8 +384,8 @@ export default function StylerPage() {
   })
 
   const handleProcess = async () => {
-    if (!file || !apiKey || !bookName) {
-      setError('Por favor, preencha todos os campos obrigatórios')
+    if (!file || !bookName) {
+      setError('Por favor, preencha o nome do livro e selecione um arquivo')
       return
     }
 
@@ -397,7 +396,7 @@ export default function StylerPage() {
     setResults(null)
 
     try {
-      const processor = new DocumentProcessor(apiKey)
+      const processor = new DocumentProcessor()
       const result = await processor.processDocument(
         file,
         bookName,
@@ -554,32 +553,17 @@ export default function StylerPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Nome do Livro
-                    </label>
-                    <input
-                      type="text"
-                      value={bookName}
-                      onChange={(e) => setBookName(e.target.value)}
-                      placeholder="Ex: Simulado_Matematica_2024"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      API Key OpenAI
-                    </label>
-                    <input
-                      type="password"
-                      value={apiKey}
-                      onChange={(e) => setApiKey(e.target.value)}
-                      placeholder="sk-..."
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Nome do Livro
+                  </label>
+                  <input
+                    type="text"
+                    value={bookName}
+                    onChange={(e) => setBookName(e.target.value)}
+                    placeholder="Ex: Simulado_Matematica_2024"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
                 </div>
               </div>
             </div>
@@ -1097,7 +1081,7 @@ export default function StylerPage() {
             <div className="bg-white rounded-lg shadow p-6">
               <Button
                 onClick={handleProcess}
-                disabled={processing || !file || !apiKey || !bookName}
+                disabled={processing || !file || !bookName}
                 className="w-full"
                 size="lg"
               >
