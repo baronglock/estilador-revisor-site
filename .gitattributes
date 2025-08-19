@@ -1,0 +1,8 @@
+# Diga ao Git para lidar com quebras de linha de forma automática e inteligente.
+# Ele vai fazer o checkout dos arquivos com a quebra de linha do seu sistema operacional,
+# mas vai salvar no GitHub (commit) sempre com o padrão LF. Isso é o ideal.
+* text=auto
+
+# Para arquivos que DEVEM ter uma quebra de linha específica, declare aqui.
+# Exemplo: scripts de shell devem sempre usar LF.
+*.sh text eol=lf
